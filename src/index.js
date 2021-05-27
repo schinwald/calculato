@@ -1,17 +1,70 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDom from 'react-dom';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+class Calculator extends React.Component {
+    render() {
+        return (
+            <div>
+                <div className="row">
+                    <Input placeholder="0"/>
+                </div>
+                <div className="row">
+                    <Button label="C"/>
+                    <Button label="Del"/>
+                    <Button label="%"/>
+                    <Button label="/"/>
+                </div>
+                <div className="row">
+                    <Button label="7"/>
+                    <Button label="8"/>
+                    <Button label="9"/>
+                    <Button label="x"/>
+                </div>
+                <div className="row">
+                    <Button label="4"/>
+                    <Button label="5"/>
+                    <Button label="6"/>
+                    <Button label="-"/>
+                </div>
+                <div className="row">
+                    <Button label="1"/>
+                    <Button label="2"/>
+                    <Button label="3"/>
+                    <Button label="+"/>
+                </div>
+                <div className="row">
+                    <Button label="0"/>
+                    <Button label="."/>
+                    <Button label="ANS"/>
+                    <Button label="="/>
+                </div>
+            </div>
+        );
+    }
+}
+
+
+class Input extends React.Component {
+    render () {
+        return (
+            <input type="text" placeholder={this.props.placeholder}/>
+        );
+    }
+}
+
+
+class Button extends React.Component {
+    render() {
+        return (
+            <input type="button" value={this.props.label}/>
+        )
+    }
+}
+
+
+ReactDom.render(
+    <Calculator/>,
+    document.getElementById('root')
+)
