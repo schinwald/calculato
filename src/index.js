@@ -18,22 +18,31 @@ class Calculator extends React.Component {
     }
 
     add(value) {
-        this.setState({input: this.state.input.concat(value)})
+        const input = this.state.input.concat(value);
+        this.handleInput(input);
     }
 
     remove() {
-        this.setState({input: this.state.input.slice(0, -1)})
+        const input = this.state.input.slice(0, -1);
+        this.handleInput(input);
     }
 
     calculate() {
         /* TODO */
     }
 
+    handleInput(input) {
+        const regex = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))*$/);
+        if (regex.test(input)) {
+            this.setState({input: input});
+        }
+    }
+
     render() {
         return (
             <div>
                 <div className="row">
-                    <Input placeholder="0" value={this.state.input} onChange={(event) => this.setState({input: event.target.value})}/>
+                    <Input placeholder="0" value={this.state.input} onChange={(event) => this.handleInput(event.target.value)}/>
                 </div>
                 <div className="row">
                     <Button label="C" onClick={() => this.clear()}/>
