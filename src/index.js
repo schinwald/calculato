@@ -86,8 +86,13 @@ class Calculator extends React.Component {
         // append number to last node (this always happens to the last node)
         if (numbers.length !== 0) {
             const index = numbers.length - 1;
-            const right = numbers[index];
-            current.right = new ArithmeticNode("number", right);
+            if (current != null) {
+                const right = numbers[index];
+                current.right = new ArithmeticNode("number", right);
+            } else {
+                const number = numbers[index];
+                root = new ArithmeticNode("number", number);
+            }
         }
         return root;
     }
