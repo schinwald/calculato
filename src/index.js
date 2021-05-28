@@ -121,9 +121,10 @@ class Calculator extends React.Component {
     }
 
     handleInput(input) {
-        const regex = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))*$/);
-        const value = input;
-        if (regex.test(value)) {
+        const validator = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))*$/);
+        const consolidator = new RegExp(/([%/x+-]|^)[0]+([0][.][0-9]*|[1-9]+)/);
+        const value = input.replace(consolidator, "$1$2");
+        if (validator.test(value)) {
             this.setState({input: value});
         }
     }
@@ -162,7 +163,11 @@ class Calculator extends React.Component {
                     <Button label="0" onClick={() => this.add("0")}/>
                     <Button label="." onClick={() => this.add(".")}/>
                     <Button label="ANS" onClick={() => this.add(this.state.answer)}/>
-                    <Button label="=" onClick={() => {const tree = this.generateTree(); this.setState({input: this.calculate(tree).toString()})}}/>
+                    <Button label="=" onClick={() => {
+                        const tree = this.generateTree();
+                        const value = this.calculate(tree).toString();
+                        this.setState({input: value, answer: value});
+                    }}/>
                 </div>
             </div>
         );
