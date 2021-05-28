@@ -3,6 +3,24 @@ import ReactDom from 'react-dom';
 import './index.css';
 
 
+
+class ArithmeticNode {
+
+    constructor(type, value) {
+        this.type = type;
+        this.value = value;
+        this.left = null;
+        this.right = null;
+    }
+
+    static calculatePrecedence(operator) {
+        if (operator === "+" || operator === "-") return 0;
+        if (operator === "%" || operator === "/" || operator === "x") return 1;
+        return -1;
+    }
+}
+
+
 class Calculator extends React.Component {
 
     constructor(props) {
@@ -27,14 +45,81 @@ class Calculator extends React.Component {
         this.handleInput(input);
     }
 
-    calculate() {
-        /* TODO */
+    generateTree() {
+        const {input} = this.state;
+        const operatorRegex = /[%/x+-]/;
+        const numberRegex = /[0-9]*[.]?[0-9]*/;
+        const numbers = input.split(operatorRegex);
+        const operators = input.split(numberRegex).slice(1,-1);
+        let root, current, previous = null;
+        // cycle through each index in operators to generate each fork in the tree
+        for (let index in operators) {
+            previous = current;
+            let operator = operators[index];
+            current = new ArithmeticNode("operator", operator);
+            // handle special case of first arithmetic node
+            if (previous != null) {
+                const precedence = ArithmeticNode.calculatePrecedence(previous.data);
+                // extend tree downward (current has more precedence than previous)
+                // previous is not resolved (not until current is resolved)
+                if (precedence < ArithmeticNode.calculatePrecedence(current.data)) {
+                    const left = numbers[index];
+                    current.left = new ArithmeticNode("number", left);
+                    previous.right = current;
+                // extend tree upward (current has less precedence than previous)
+                // previous can be resolved (therefore number is attached to right side)
+                } else {
+                    current.left = root;
+                    const right = numbers[index];
+                    previous.right = new ArithmeticNode("number", right);
+                    // change root pointer of tree
+                    root = current;
+                }
+            // prepend number to first node (this always happens for the first node)
+            } else {
+                const left = numbers[index];
+                current.left = new ArithmeticNode("number", left);
+                // initialize root pointer of tree
+                root = current;
+            }        
+        }
+        // append number to last node (this always happens to the last node)
+        if (numbers.length !== 0) {
+            const index = numbers.length - 1;
+            const right = numbers[index];
+            current.right = new ArithmeticNode("number", right);
+        }
+        return root;
+    }
+
+    calculate(tree) {
+        if (tree == null) return 0;
+        if (tree.type === "number") return parseFloat(tree.value);
+        if (tree.type === "operator") {
+            let left, right = 0;
+            if (tree.left != null) left = this.calculate(tree.left);
+            if (tree.right != null) right = this.calculate(tree.right);
+            // compute arithmetic expression with left and right numbers
+            if (tree.value === "%") {
+                return left % right;
+            } else if (tree.value === "/") {
+                return left / right;
+            } else if (tree.value === "x") {
+                return left * right;
+            } else if (tree.value === "+") {
+                return left + right;
+            } else if (tree.value === "-") {
+                return left - right;
+            }
+        }
+        return 0;
     }
 
     handleInput(input) {
         const regex = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))*$/);
-        if (regex.test(input)) {
-            this.setState({input: input});
+        const value = input;
+        if (regex.test(value)) {
+            this.setState({input: value});
         }
     }
 
@@ -72,7 +157,7 @@ class Calculator extends React.Component {
                     <Button label="0" onClick={() => this.add("0")}/>
                     <Button label="." onClick={() => this.add(".")}/>
                     <Button label="ANS" onClick={() => this.add(this.state.answer)}/>
-                    <Button label="=" onClick={() => this.calculate()}/>
+                    <Button label="=" onClick={() => {const tree = this.generateTree(); this.setState({input: this.calculate(tree).toString()})}}/>
                 </div>
             </div>
         );
