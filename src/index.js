@@ -26,13 +26,13 @@ class Calculator extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            input: "",
+            input: "0",
             answer: ""
         }
     }
 
     clear() {
-        this.setState({input: ""});
+        this.setState({input: "0"});
     }
 
     add(value) {
@@ -121,9 +121,15 @@ class Calculator extends React.Component {
     }
 
     handleInput(input) {
-        const validator = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))*$/);
-        const consolidator = new RegExp(/([%/x+-]|^)[0]+([0][.][0-9]*|[1-9]+)/);
-        const value = input.replace(consolidator, "$1$2");
+        // creating regular expressions for handling input
+        const validator = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))+$/);
+        const empty = new RegExp(/^$/);
+        const leadingZeros = new RegExp(/([%/x+-]|^)[0]+([0][.][0-9]*|[1-9]+)/);
+        // mutate string to be formatted correctly
+        let value = input;
+        value = value.replace(empty, "0");
+        value = value.replace(leadingZeros, "$1$2");
+        // validate value and change input state
         if (validator.test(value)) {
             this.setState({input: value});
         }
@@ -133,7 +139,7 @@ class Calculator extends React.Component {
         return (
             <div>
                 <div className="row">
-                    <Input placeholder="0" value={this.state.input} onChange={(event) => this.handleInput(event.target.value)}/>
+                    <Input value={this.state.input} onChange={(event) => this.handleInput(event.target.value)}/>
                 </div>
                 <div className="row">
                     <Button label="C" onClick={() => this.clear()}/>
@@ -178,7 +184,7 @@ class Calculator extends React.Component {
 class Input extends React.Component {
     render () {
         return (
-            <input type="text" placeholder={this.props.placeholder} value={this.props.value} onChange={this.props.onChange}/>
+            <input type="text" value={this.props.value} onChange={this.props.onChange}/>
         );
     }
 }
