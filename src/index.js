@@ -26,8 +26,8 @@ class Calculator extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            input: "0",
-            answer: ""
+            history: [],
+            input: "0"
         }
     }
 
@@ -36,13 +36,15 @@ class Calculator extends React.Component {
     }
 
     add(value) {
-        const input = this.state.input.concat(value);
-        this.handleInput(input);
+        const {input} = this.state;
+        const updated = input.concat(value);
+        this.handleInput(updated);
     }
 
     remove() {
-        const input = this.state.input.slice(0, -1);
-        this.handleInput(input);
+        const {input} = this.state;
+        const updated = input.slice(0, -1);
+        this.handleInput(updated);
     }
 
     generateTree() {
@@ -102,6 +104,7 @@ class Calculator extends React.Component {
         if (tree.type === "number") return parseFloat(tree.value);
         if (tree.type === "operator") {
             let left, right = 0;
+            // calculate left and right side of operator
             if (tree.left != null) left = this.calculate(tree.left);
             if (tree.right != null) right = this.calculate(tree.right);
             // compute arithmetic expression with left and right numbers
@@ -120,60 +123,82 @@ class Calculator extends React.Component {
         return 0;
     }
 
-    handleInput(input) {
+    handleInput(value) {
         // creating regular expressions for handling input
         const validator = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))+$/);
         const empty = new RegExp(/^$/);
         const leadingZeros = new RegExp(/([%/x+-]|^)[0]+([0][.][0-9]*|[1-9]+)/);
         // mutate string to be formatted correctly
-        let value = input;
-        value = value.replace(empty, "0");
-        value = value.replace(leadingZeros, "$1$2");
+        let input = value;
+        input = input.replace(empty, "0");
+        input = input.replace(leadingZeros, "$1$2");
         // validate value and change input state
         if (validator.test(value)) {
-            this.setState({input: value});
+            this.setState({input: input});
         }
     }
 
     render() {
+        const {history, input} = this.state;
         return (
             <div>
-                <div className="row">
-                    <Input value={this.state.input} onChange={(event) => this.handleInput(event.target.value)}/>
+                <div className="top">
+                    <div className="row">
+                        <History history={history} onClick={(index) => {
+                            if (history[index] != null) {
+                                const character = input[input.length - 1];
+                                const operators = new RegExp(/[%/x+-]/);
+                                if (operators.test(character)) {
+                                    this.add(history[index].answer);
+                                } else {
+                                    this.add("+" + history[index].answer);
+                                }
+                            }
+                        }}/>
+                    </div>
+                    <div className="row">
+                        <Input value={input} onChange={(event) => {this.handleInput(event.target.value);}}/>
+                    </div>
                 </div>
-                <div className="row">
-                    <Button label="C" onClick={() => this.clear()}/>
-                    <Button label="Del" onClick={() => this.remove()}/>
-                    <Button label="%" onClick={() => this.add("%")}/>
-                    <Button label="/" onClick={() => this.add("/")}/>
-                </div>
-                <div className="row">
-                    <Button label="7" onClick={() => this.add("7")}/>
-                    <Button label="8" onClick={() => this.add("8")}/>
-                    <Button label="9" onClick={() => this.add("9")}/>
-                    <Button label="x" onClick={() => this.add("x")}/>
-                </div>
-                <div className="row">
-                    <Button label="4" onClick={() => this.add("4")}/>
-                    <Button label="5" onClick={() => this.add("5")}/>
-                    <Button label="6" onClick={() => this.add("6")}/>
-                    <Button label="-" onClick={() => this.add("-")}/>
-                </div>
-                <div className="row">
-                    <Button label="1" onClick={() => this.add("1")}/>
-                    <Button label="2" onClick={() => this.add("2")}/>
-                    <Button label="3" onClick={() => this.add("3")}/>
-                    <Button label="+" onClick={() => this.add("+")}/>
-                </div>
-                <div className="row">
-                    <Button label="0" onClick={() => this.add("0")}/>
-                    <Button label="." onClick={() => this.add(".")}/>
-                    <Button label="ANS" onClick={() => this.add(this.state.answer)}/>
-                    <Button label="=" onClick={() => {
-                        const tree = this.generateTree();
-                        const value = this.calculate(tree).toString();
-                        this.setState({input: value, answer: value});
-                    }}/>
+                <div className="bottom">
+                    <div className="row">
+                        <Button value="C" onClick={() => {this.clear();}}/>
+                        <Button value="Del" onClick={() => {this.remove();}}/>
+                        <Button value="%" onClick={() => {this.add("%");}}/>
+                        <Button value="/" onClick={() => {this.add("/");}}/>
+                    </div>
+                    <div className="row">
+                        <Button value="7" onClick={() => {this.add("7");}}/>
+                        <Button value="8" onClick={() => {this.add("8");}}/>
+                        <Button value="9" onClick={() => {this.add("9");}}/>
+                        <Button value="x" onClick={() => {this.add("x");}}/>
+                    </div>
+                    <div className="row">
+                        <Button value="4" onClick={() => {this.add("4");}}/>
+                        <Button value="5" onClick={() => {this.add("5");}}/>
+                        <Button value="6" onClick={() => {this.add("6");}}/>
+                        <Button value="-" onClick={() => {this.add("-");}}/>
+                    </div>
+                    <div className="row">
+                        <Button value="1" onClick={() => {this.add("1");}}/>
+                        <Button value="2" onClick={() => {this.add("2");}}/>
+                        <Button value="3" onClick={() => {this.add("3");}}/>
+                        <Button value="+" onClick={() => {this.add("+");}}/>
+                    </div>
+                    <div className="row">
+                        <Button value="0" onClick={() => {this.add("0");}}/>
+                        <Button value="." onClick={() => {this.add(".");}}/>
+                        <Button value="ANS" onClick={() => {
+                            const index = history.length - 1;
+                            this.add(history[index].answer);
+                        }}/>
+                        <Button value="=" onClick={() => {
+                            const tree = this.generateTree();
+                            const answer = this.calculate(tree).toString();
+                            const recent = history.concat({input: input, answer: answer})
+                            this.setState({history: recent, input: answer});
+                        }}/>
+                    </div>
                 </div>
             </div>
         );
@@ -181,21 +206,35 @@ class Calculator extends React.Component {
 }
 
 
-class Input extends React.Component {
-    render () {
+function History(props) {
+    const {history, onClick} = props;
+    const list = history.map((element, index) => {
+        const input = element.input;
         return (
-            <input type="text" value={this.props.value} onChange={this.props.onChange}/>
-        );
-    }
+            <li key={index} className="history-item">
+                <Button value={input} onClick={() => {onClick(index);}}></Button>
+            </li>
+        )
+    });
+    return (
+        <ol className="history">{list}</ol>
+    );
 }
 
 
-class Button extends React.Component {
-    render() {
-        return (
-            <input type="button" value={this.props.label} onClick={this.props.onClick}/>
-        )
-    }
+function Input(props) {
+    const {value, onChange, disabled} = props;
+    return (
+        <input className="input" type="text" value={value} onChange={onChange} disabled={disabled}/>
+    )
+}
+
+
+function Button(props) {
+    const {value, onClick} = props;
+    return (
+        <input type="button" value={value} onClick={onClick}/>
+    )
 }
 
 
