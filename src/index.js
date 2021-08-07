@@ -21,6 +21,130 @@ class ArithmeticNode {
 }
 
 
+class State {
+    
+    constructor(id, regex, transitions, recoveries) {
+        this.id = id;
+        this.regex = regex;
+        this.transitions = transitions;
+        this.recoveries = recoveries;
+    }
+}
+
+
+class StateMachine {
+
+    constructor(states, start, accept) {
+        this.history = [];
+        this.states = states;
+        this.start = start;
+        this.accept = accept;
+        this.current = start;
+    }
+
+    reset() {
+        this.current = this.start;
+        this.history = [];
+    }
+
+    backwardTransition() {
+        if (this.history.length === 0) return -1;
+        this.current = this.history.pop();
+        return 1;
+    }
+
+    forwardTransition(input) {
+        for (const index of this.states[this.current].transitions) {
+            let regex = this.states[index].regex;
+            if (index < this.states.length && regex.test(input)) {
+                this.history.push(this.current);
+                this.current = index;
+                return 1;
+            }
+        }
+        return -1;
+    }
+
+    recover(input) {
+        let counter = 0;
+        let recoveries = this.states[this.current].recoveries;
+        while (this.backwardTransition() !== -1) {
+            counter++;
+            if (recoveries.includes(this.current)) {
+                if (this.forwardTransition(input) !== -1) return counter;
+                break;
+            }
+        }
+        return -1;
+    }
+
+    isAccepting() {
+        return this.accept.includes(this.current);
+    }
+}
+
+
+class InputHandler {
+
+    constructor() {
+        let states = [
+            new State( 0,     null,     [  1,  2,  3,  4,  5],            [   ]),
+            new State( 1,    /[(]/,     [  1,  2,  3,  4,  5],            [   ]),
+            new State( 2,    /[-]/,             [  3,  4,  5],            [   ]),
+            new State( 3,    /[0]/,             [  4,  8, 10],     [ 0,  8,  9]),
+            new State( 4,    /[.]/,                     [  6],     [ 3,  6,  7]),
+            new State( 5,  /[1-9]/,     [  4,  7,  8,  9, 10],            [   ]),
+            new State( 6,  /[0-9]/,         [  6,  8,  9, 10],            [   ]),
+            new State( 7,  /[0-9]/,     [  4,  7,  8,  9, 10],            [   ]),
+            new State( 8, /[%/x+]/,     [  1,  2,  3,  4,  5],            [   ]),
+            new State( 9,    /[-]/,         [  1,  3,  4,  5],            [   ]),
+            new State(10,    /[)]/, [  1,  2,  3,  4,  5,  8],            [   ])
+        ];
+        let start = 0;
+        let accept = [3, 5, 7, 8, 11]
+        this.brackets = 0;
+        this.machine = new StateMachine(states, start, accept);
+    }
+
+    reset() {
+        this.machine.reset();
+        this.brackets = 0;
+    }
+
+    backwardTransition() {
+        const current = this.machine.current;
+        let ret = this.machine.backwardTransition();
+        if (ret > 0) {
+            if (current === 1) this.brackets--;
+            if (current === 11) this.brackets++;
+        }
+        return ret;
+    }
+
+    forwardTransition(input) {
+        const current = this.machine.current;
+        let ret = this.machine.forwardTransition(input);
+        if (ret > 0) {
+            if (current === 1) this.brackets++;
+            if (current === 11) this.brackets--;
+        }
+        return ret;
+    }
+
+    process(input) {
+        let counter = 0;
+        let ret = this.forwardTransition(input);
+        if (ret === -1) counter = this.machine.recover(input);
+        console.log("counter: ", counter);
+        return counter;
+    }
+
+    isComplete() {
+        return (this.machine.isAccepting() && this.brackets === 0);
+    }
+}
+
+
 class Calculator extends React.Component {
 
     constructor(props) {
@@ -43,7 +167,12 @@ class Calculator extends React.Component {
 
     remove() {
         const {input} = this.state;
-        const updated = input.slice(0, -1);
+        let updated = null;
+        if (input.length === 1) {
+            this.clear();
+        } else {
+            updated = input.slice(0, -1);
+        }
         this.handleInput(updated);
     }
 
@@ -124,18 +253,19 @@ class Calculator extends React.Component {
     }
 
     handleInput(value) {
-        // creating regular expressions for handling input
-        const validator = new RegExp(/^(([.][0-9]+|[.]$|[0-9]+[.][0-9]+|[0-9]+[.]|[0-9]+)([%/x+-]|$))+$/);
-        const empty = new RegExp(/^$/);
-        const leadingZeros = new RegExp(/([%/x+-]|^)[0]+([0][.][0-9]*|[1-9]+)/);
-        // mutate string to be formatted correctly
-        let input = value;
-        input = input.replace(empty, "0");
-        input = input.replace(leadingZeros, "$1$2");
-        // validate value and change input state
-        if (validator.test(value)) {
-            this.setState({input: input});
+        const {inputHandler} = this.props;
+        const array = []; 
+        inputHandler.reset();
+        for (let i = 0; i < value.length; i++) {
+            let counter = inputHandler.process(value[i]);
+            if (counter === -1) break;
+            for (let j = 0; j < counter; j++) {
+                array.pop();
+            }
+            array.push(value[i]);
         }
+        let updated = array.join('');
+        this.setState({input: updated});
     }
 
     render() {
@@ -148,11 +278,10 @@ class Calculator extends React.Component {
                             if (history[index] != null) {
                                 const character = input[input.length - 1];
                                 const operators = new RegExp(/[%/x+-]/);
-                                if (operators.test(character)) {
-                                    this.add(history[index].answer);
-                                } else {
-                                    this.add("+" + history[index].answer);
+                                if (!operators.test(character)) {
+                                    this.clear();
                                 }
+                                this.add(history[index].answer);
                             }
                         }}/>
                     </div>
@@ -162,10 +291,12 @@ class Calculator extends React.Component {
                 </div>
                 <div className="bottom">
                     <div className="row">
-                        <Button value="C" onClick={() => {this.clear();}}/>
-                        <Button value="Del" onClick={() => {this.remove();}}/>
-                        <Button value="%" onClick={() => {this.add("%");}}/>
-                        <Button value="/" onClick={() => {this.add("/");}}/>
+                        {/* <Button value="C" onClick={() => {this.clear();}}/>
+                        <Button value="Del" onClick={() => {this.remove();}}/> */}
+                        <Button value="(" onClick={() => {this.add("(");}}/>
+                        <Button value=")" onClick={() => {this.add(")");}}/>
+                        <Button value="+" onClick={() => {this.add("+");}}/>
+                        <Button value="-" onClick={() => {this.add("-");}}/>
                     </div>
                     <div className="row">
                         <Button value="7" onClick={() => {this.add("7");}}/>
@@ -177,26 +308,25 @@ class Calculator extends React.Component {
                         <Button value="4" onClick={() => {this.add("4");}}/>
                         <Button value="5" onClick={() => {this.add("5");}}/>
                         <Button value="6" onClick={() => {this.add("6");}}/>
-                        <Button value="-" onClick={() => {this.add("-");}}/>
+                        <Button value="/" onClick={() => {this.add("/");}}/>
                     </div>
                     <div className="row">
                         <Button value="1" onClick={() => {this.add("1");}}/>
                         <Button value="2" onClick={() => {this.add("2");}}/>
                         <Button value="3" onClick={() => {this.add("3");}}/>
-                        <Button value="+" onClick={() => {this.add("+");}}/>
+                        <Button value="%" onClick={() => {this.add("%");}}/>
                     </div>
                     <div className="row">
                         <Button value="0" onClick={() => {this.add("0");}}/>
                         <Button value="." onClick={() => {this.add(".");}}/>
-                        <Button value="ANS" onClick={() => {
-                            const index = history.length - 1;
-                            this.add(history[index].answer);
-                        }}/>
                         <Button value="=" onClick={() => {
                             const tree = this.generateTree();
                             const answer = this.calculate(tree).toString();
                             const recent = history.concat({input: input, answer: answer})
                             this.setState({history: recent, input: answer});
+                        }}/>
+                        <Button value="ANS" onClick={() => {
+                            this.add()
                         }}/>
                     </div>
                 </div>
@@ -239,6 +369,6 @@ function Button(props) {
 
 
 ReactDom.render(
-    <Calculator/>,
+    <Calculator inputHandler={new InputHandler()}/>,
     document.getElementById('root')
 )
