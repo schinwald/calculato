@@ -1,0 +1,41 @@
+html, body {
+    width: 100%;
+    height:100%;
+}
+
+body {
+    background: linear-gradient(-45deg, #ff9736, #e73c7e, #23a6d5, #00ffc3);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.calculator {
+    background-color: #f5f5f5;
+}
+
+.display {
+    padding: 5px 10px 5px 10px;
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+}
+
+.preserve-characters {
+    white-space: pre;
+}
+
+input {
+    outline: none;
+    border: none;
+}
