@@ -9,6 +9,11 @@ body {
     animation: gradient 15s ease infinite;
 }
 
+input {
+    outline: none;
+    border: none;
+}
+
 @keyframes gradient {
     0% {
         background-position: 0% 50%;
@@ -22,7 +27,7 @@ body {
 }
 
 .calculator {
-    background-color: #f5f5f5;
+    background-color: #7e7e7e;
 }
 
 .display {
@@ -31,11 +36,14 @@ body {
     border: 1px solid #e5e5e5;
 }
 
-.preserve-characters {
-    white-space: pre;
+.uk-button-default {
+    background-color: #e4e4e4;
 }
 
-input {
-    outline: none;
-    border: none;
+.uk-button-default:focus, .uk-button-default:hover {
+    background-color: #cfcfcf;
+}
+
+.preserve-characters {
+    white-space: pre;
 }

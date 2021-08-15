@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import './index.css';
 
+const classNames = require('classnames');
 
 
 class ArithmeticNode {
@@ -270,7 +271,7 @@ class Calculator extends React.Component {
     }
 
     clear() {
-        this.setState({input: "", placeholder: "0"});
+        this.setState({input: ""});
     }
 
     add(value) {
@@ -317,47 +318,37 @@ class Calculator extends React.Component {
 
     render() {
         const {history, input, placeholder} = this.state;
-        let recentInput = " ";
-        let recentAnswer = " ";
-        let historyButton = (<></>);
+        let recent = " ";
         if (history.length > 0) {
-            recentInput = history[history.length - 1].input;
-            recentAnswer = "ANS=" + history[history.length - 1].answer;
+            if (input.length === 0) {
+                recent = history[history.length - 1].input + "=";
+            } else {
+                recent = "ANS=" + history[history.length - 1].answer;
+            }
         }
-        if (history.length > 1 || true) {
-            historyButton = (
-                <span className="uk-link" onClick={() => {console.log("hi")}}>
-                    <span uk-icon="icon: history"></span>
-                </span>
-            )
-        }
-        const recent = (
-            <div className="recent uk-width-1-1 uk-margin-remove uk-text-right">
-                <div>
-                    {historyButton}
-                    <span className="uk-width-1-1 uk-text-large uk-margin-remove preserve-characters">{recentInput}</span>
-                </div>
-                <div>
-                    <span className="uk-text-small uk-margin-remove preserve-characters">{recentAnswer}</span>
-                </div>
-            </div>
-        )
+        const historyButton = classNames({
+            "uk-link": true,
+            "uk-hidden": !(history.length > 1)
+        })
+        {/* <History history={history} onClick={(index) => {
+            if (history[index] != null) {
+                const character = input[input.length - 1];
+                const operators = new RegExp(/[%/x+-]/);
+                if (!operators.test(character)) {
+                    this.clear();
+                }
+                this.add(history[index].answer);
+            }
+        }}/> */}
         return (
             <div className="uk-container uk-padding-large">
                 <div className="calculator uk-card uk-card-default uk-card-body uk-align-center uk-width-1-3 uk-border-rounded">
                     <div className="display uk-width-1-1 uk-margin-bottom">
                         <div className="uk-width-1-1">
-                            {recent}
-                            {/* <History history={history} onClick={(index) => {
-                                if (history[index] != null) {
-                                    const character = input[input.length - 1];
-                                    const operators = new RegExp(/[%/x+-]/);
-                                    if (!operators.test(character)) {
-                                        this.clear();
-                                    }
-                                    this.add(history[index].answer);
-                                }
-                            }}/> */}
+                            <div className="recent uk-flex uk-flex-middle uk-width-1-1 uk-margin-remove">
+                                <span className={historyButton} uk-icon="icon: history" onClick={() => {console.log("hi")}}></span>
+                                <span className="uk-width-1-1 uk-text-small uk-margin-remove uk-text-right preserve-characters">{recent}</span>
+                            </div>
                         </div>
                         <div className="uk-width-1-1">
                             <Input value={input} placeholder={placeholder} onChange={(event) => {this.handleInput(event.target.value);}}/>
@@ -365,33 +356,35 @@ class Calculator extends React.Component {
                     </div>
                     <div className="numbers uk-width-1-1">
                         <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="(" onClick={() => {this.add("(");}}/>
-                            <Button value=")" onClick={() => {this.add(")");}}/>
-                            <Button value="+" onClick={() => {this.add("+");}}/>
-                            <Button value="-" onClick={() => {this.add("-");}}/>
+                            <Button value="C" color="danger" onClick={() => {
+                                this.clear();
+                            }}/>
+                            <Button value="(" color="secondary" onClick={() => {this.add("(");}}/>
+                            <Button value=")" color="secondary" onClick={() => {this.add(")");}}/>
+                            <Button value="%" color="secondary" onClick={() => {this.add("%");}}/>
                         </div>
                         <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="7" onClick={() => {this.add("7");}}/>
-                            <Button value="8" onClick={() => {this.add("8");}}/>
-                            <Button value="9" onClick={() => {this.add("9");}}/>
-                            <Button value="x" onClick={() => {this.add("x");}}/>
+                            <Button value="7" color="default" onClick={() => {this.add("7");}}/>
+                            <Button value="8" color="default" onClick={() => {this.add("8");}}/>
+                            <Button value="9" color="default" onClick={() => {this.add("9");}}/>
+                            <Button value="/" color="secondary" onClick={() => {this.add("/");}}/>
                         </div>
                         <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="4" onClick={() => {this.add("4");}}/>
-                            <Button value="5" onClick={() => {this.add("5");}}/>
-                            <Button value="6" onClick={() => {this.add("6");}}/>
-                            <Button value="/" onClick={() => {this.add("/");}}/>
+                            <Button value="4" color="default" onClick={() => {this.add("4");}}/>
+                            <Button value="5" color="default" onClick={() => {this.add("5");}}/>
+                            <Button value="6" color="default" onClick={() => {this.add("6");}}/>
+                            <Button value="x" color="secondary" onClick={() => {this.add("x");}}/>
                         </div>
                         <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="1" onClick={() => {this.add("1");}}/>
-                            <Button value="2" onClick={() => {this.add("2");}}/>
-                            <Button value="3" onClick={() => {this.add("3");}}/>
-                            <Button value="%" onClick={() => {this.add("%");}}/>
+                            <Button value="1" color="default" onClick={() => {this.add("1");}}/>
+                            <Button value="2" color="default" onClick={() => {this.add("2");}}/>
+                            <Button value="3" color="default" onClick={() => {this.add("3");}}/>
+                            <Button value="+" color="secondary" onClick={() => {this.add("+");}}/>
                         </div>
                         <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="0" onClick={() => {this.add("0");}}/>
-                            <Button value="." onClick={() => {this.add(".");}}/>
-                            <Button value="=" onClick={() => {
+                            <Button value="0" color="default" onClick={() => {this.add("0");}}/>
+                            <Button value="." color="default" onClick={() => {this.add(".");}}/>
+                            <Button value="=" color="primary" onClick={() => {
                                 const {inputHandler} = this.props;
                                 const tree = inputHandler.generateArithmeticTree();
                                 if (tree === null) return;
@@ -399,9 +392,7 @@ class Calculator extends React.Component {
                                 const recent = history.concat({input: input, answer: answer})
                                 this.setState({history: recent, input: "", placeholder: answer});
                             }}/>
-                            <Button value="DEL" onClick={() => {
-                                this.remove();
-                            }}/>
+                            <Button value="-" color="secondary" onClick={() => {this.add("-");}}/>
                         </div>
                     </div>
                 </div>
@@ -435,8 +426,7 @@ function History(props) {
 function Input(props) {
     const {value, placeholder, onChange, disabled} = props;
     return (
-        <div className="uk-flex uk-flex-middle uk-width-1-1">
-            <span className="uk-link" onClick={() => {console.log("hi")}}>AC</span>
+        <div className="uk-width-1-1">
             <input className="uk-width-1-1 uk-padding-remove uk-margin-remove uk-text-right uk-text-large" type="text" value={value} placeholder={placeholder} onChange={onChange} disabled={disabled}/>
         </div>
     )
@@ -444,10 +434,12 @@ function Input(props) {
 
 
 function Button(props) {
-    const {value, onClick} = props;
+    const {value, color, onClick} = props;
+    let className = "uk-button uk-text-center uk-text-large uk-padding-remove uk-width-1-1";
+    className = className + " uk-button-" + color;
     return (
         <div>
-            <input className="uk-button uk-button-default uk-text-center uk-text-large uk-padding-remove uk-width-1-1" type="button" value={value} onClick={onClick}/>
+            <input className={className} type="button" value={value} onClick={onClick}/>
         </div>
     )
 }
