@@ -344,11 +344,7 @@ class Calculator extends React.Component {
         if (history.length > 0) {
             const recentInput = history[history.length - 1].input;
             const recentAnswer = history[history.length - 1].answer;
-            if (input.length === 0) {
-                recent = <span><span className="uk-link" onClick={() => {this.addHistory(history.length - 1, "input");}}>{recentInput}</span>=</span>;
-            } else {
-                recent = <span>ANS=<span className="uk-link" onClick={() => {this.addHistory(history.length - 1, "answer");}}>{recentAnswer}</span></span>
-            }
+            recent = <span><span className="uk-link" onClick={() => {this.addHistory(history.length - 1, "input");}}>{recentInput}</span>=<span className="uk-link" onClick={() => {this.addHistory(history.length - 1, "answer");}}>{recentAnswer}</span></span>
         }
         const historyButton = classNames({
             "uk-link": true,
@@ -385,25 +381,49 @@ class Calculator extends React.Component {
                                     }}/>
                                     <Button value="(" color="secondary" onClick={() => {this.add("(");}}/>
                                     <Button value=")" color="secondary" onClick={() => {this.add(")");}}/>
-                                    <Button value="%" color="secondary" onClick={() => {this.add("%");}}/>
+                                    <Button value="%" color="secondary" onClick={() => {
+                                        if (input.length === 0) {
+                                            this.add(placeholder + "%");
+                                        } else {
+                                            this.add("%");
+                                        }
+                                    }}/>
                                 </div>
                                 <div className="uk-grid uk-grid-small uk-child-width-1-4">
                                     <Button value="7" color="default" onClick={() => {this.add("7");}}/>
                                     <Button value="8" color="default" onClick={() => {this.add("8");}}/>
                                     <Button value="9" color="default" onClick={() => {this.add("9");}}/>
-                                    <Button value="/" color="secondary" onClick={() => {this.add("/");}}/>
+                                    <Button value="/" color="secondary" onClick={() => {
+                                        if (input.length === 0) {
+                                            this.add(placeholder + "/");
+                                        } else {
+                                            this.add("/");
+                                        }
+                                    }}/>
                                 </div>
                                 <div className="uk-grid uk-grid-small uk-child-width-1-4">
                                     <Button value="4" color="default" onClick={() => {this.add("4");}}/>
                                     <Button value="5" color="default" onClick={() => {this.add("5");}}/>
                                     <Button value="6" color="default" onClick={() => {this.add("6");}}/>
-                                    <Button value="x" color="secondary" onClick={() => {this.add("x");}}/>
+                                    <Button value="x" color="secondary" onClick={() => {
+                                        if (input.length === 0) {
+                                            this.add(placeholder + "x");
+                                        } else {
+                                            this.add("x");
+                                        }
+                                    }}/>
                                 </div>
                                 <div className="uk-grid uk-grid-small uk-child-width-1-4">
                                     <Button value="1" color="default" onClick={() => {this.add("1");}}/>
                                     <Button value="2" color="default" onClick={() => {this.add("2");}}/>
                                     <Button value="3" color="default" onClick={() => {this.add("3");}}/>
-                                    <Button value="+" color="secondary" onClick={() => {this.add("+");}}/>
+                                    <Button value="+" color="secondary" onClick={() => {
+                                        if (input.length === 0) {
+                                            this.add(placeholder + "+");
+                                        } else {
+                                            this.add("+");
+                                        }
+                                    }}/>
                                 </div>
                                 <div className="uk-grid uk-grid-small uk-child-width-1-4">
                                     <Button value="0" color="default" onClick={() => {this.add("0");}}/>
@@ -423,7 +443,7 @@ class Calculator extends React.Component {
                     </div>
                     <div className="uk-padding-remove uk-width-1-3">
                         <div className="socials">
-                        
+                            
                         </div>
                     </div>
                 </div>
