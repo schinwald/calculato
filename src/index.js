@@ -5,6 +5,7 @@ import './index.css';
 const classNames = require('classnames');
 
 
+
 class ArithmeticNode {
 
     constructor(type, value) {
@@ -268,10 +269,31 @@ class Calculator extends React.Component {
             input: "",
             placeholder: "0"
         }
+        this.historyRef = React.createRef();
+        this.addHistory = this.addHistory.bind(this);
+    }
+
+    clearAll() {
+        this.setState({
+            history: [],
+            input: "",
+            placeholder: "0"
+        })
     }
 
     clear() {
         this.setState({input: ""});
+    }
+
+    addHistory(index, key) {
+        const {input, history} = this.state;
+        if (key !== "input" && key !== "answer") return false;
+        if (0 <= index && index < history.length) {
+            const operators = new RegExp(/[%/x+-]/);
+            if (input.length === 0 || operators.test(input[input.length - 1])) {
+                this.add(history[index][key]);
+            }
+        }
     }
 
     add(value) {
@@ -320,79 +342,88 @@ class Calculator extends React.Component {
         const {history, input, placeholder} = this.state;
         let recent = " ";
         if (history.length > 0) {
+            const recentInput = history[history.length - 1].input;
+            const recentAnswer = history[history.length - 1].answer;
             if (input.length === 0) {
-                recent = history[history.length - 1].input + "=";
+                recent = <span><span className="uk-link" onClick={() => {this.addHistory(history.length - 1, "input");}}>{recentInput}</span>=</span>;
             } else {
-                recent = "ANS=" + history[history.length - 1].answer;
+                recent = <span>ANS=<span className="uk-link" onClick={() => {this.addHistory(history.length - 1, "answer");}}>{recentAnswer}</span></span>
             }
         }
         const historyButton = classNames({
             "uk-link": true,
             "uk-hidden": !(history.length > 1)
         })
-        {/* <History history={history} onClick={(index) => {
-            if (history[index] != null) {
-                const character = input[input.length - 1];
-                const operators = new RegExp(/[%/x+-]/);
-                if (!operators.test(character)) {
-                    this.clear();
-                }
-                this.add(history[index].answer);
-            }
-        }}/> */}
         return (
             <div className="uk-container uk-padding-large">
-                <div className="calculator uk-card uk-card-default uk-card-body uk-align-center uk-width-1-3 uk-border-rounded">
-                    <div className="display uk-width-1-1 uk-margin-bottom">
-                        <div className="uk-width-1-1">
-                            <div className="recent uk-flex uk-flex-middle uk-width-1-1 uk-margin-remove">
-                                <span className={historyButton} uk-icon="icon: history" onClick={() => {console.log("hi")}}></span>
-                                <span className="uk-width-1-1 uk-text-small uk-margin-remove uk-text-right preserve-characters">{recent}</span>
-                            </div>
-                        </div>
-                        <div className="uk-width-1-1">
-                            <Input value={input} placeholder={placeholder} onChange={(event) => {this.handleInput(event.target.value);}}/>
+                <div className="uk-grid">
+                    <div className="uk-padding uk-padding-remove-top uk-padding-remove-bottom uk-padding-remove-left uk-width-1-3">
+                        <div ref={this.historyRef} className="history" hidden>
+                            <History history={history} onClick={this.addHistory}/>
                         </div>
                     </div>
-                    <div className="numbers uk-width-1-1">
-                        <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="C" color="danger" onClick={() => {
-                                this.clear();
-                            }}/>
-                            <Button value="(" color="secondary" onClick={() => {this.add("(");}}/>
-                            <Button value=")" color="secondary" onClick={() => {this.add(")");}}/>
-                            <Button value="%" color="secondary" onClick={() => {this.add("%");}}/>
+                    <div className="uk-padding-remove uk-width-1-3">
+                        <div className="calculator uk-card uk-card-default uk-card-body uk-border-rounded uk-box-shadow-large">
+                            <div className="display uk-width-1-1 uk-margin-bottom">
+                                <div className="uk-width-1-1">
+                                    <div className="recent uk-flex uk-flex-middle uk-width-1-1 uk-margin-remove">
+                                        <span className={historyButton} uk-icon="icon: history" uk-toggle="target: .history; animation: uk-animation-slide-right"></span>
+                                        <span className="uk-width-1-1 uk-text-large uk-margin-remove uk-text-right preserve-characters">{recent}</span>
+                                    </div>
+                                </div>
+                                <div className="uk-width-1-1">
+                                    <Input value={input} placeholder={placeholder} onChange={(event) => {this.handleInput(event.target.value);}}/>
+                                </div>
+                            </div>
+                            <div className="numbers uk-width-1-1">
+                                <div className="uk-grid uk-grid-small uk-child-width-1-4">
+                                    <Button value="AC" color="danger" onClick={() => {
+                                        this.clearAll();
+                                        if (this.historyRef.current.hidden === false) {
+                                            this.historyRef.current.hidden = true;
+                                        }
+                                    }}/>
+                                    <Button value="(" color="secondary" onClick={() => {this.add("(");}}/>
+                                    <Button value=")" color="secondary" onClick={() => {this.add(")");}}/>
+                                    <Button value="%" color="secondary" onClick={() => {this.add("%");}}/>
+                                </div>
+                                <div className="uk-grid uk-grid-small uk-child-width-1-4">
+                                    <Button value="7" color="default" onClick={() => {this.add("7");}}/>
+                                    <Button value="8" color="default" onClick={() => {this.add("8");}}/>
+                                    <Button value="9" color="default" onClick={() => {this.add("9");}}/>
+                                    <Button value="/" color="secondary" onClick={() => {this.add("/");}}/>
+                                </div>
+                                <div className="uk-grid uk-grid-small uk-child-width-1-4">
+                                    <Button value="4" color="default" onClick={() => {this.add("4");}}/>
+                                    <Button value="5" color="default" onClick={() => {this.add("5");}}/>
+                                    <Button value="6" color="default" onClick={() => {this.add("6");}}/>
+                                    <Button value="x" color="secondary" onClick={() => {this.add("x");}}/>
+                                </div>
+                                <div className="uk-grid uk-grid-small uk-child-width-1-4">
+                                    <Button value="1" color="default" onClick={() => {this.add("1");}}/>
+                                    <Button value="2" color="default" onClick={() => {this.add("2");}}/>
+                                    <Button value="3" color="default" onClick={() => {this.add("3");}}/>
+                                    <Button value="+" color="secondary" onClick={() => {this.add("+");}}/>
+                                </div>
+                                <div className="uk-grid uk-grid-small uk-child-width-1-4">
+                                    <Button value="0" color="default" onClick={() => {this.add("0");}}/>
+                                    <Button value="." color="default" onClick={() => {this.add(".");}}/>
+                                    <Button value="=" color="primary" onClick={() => {
+                                        const {inputHandler} = this.props;
+                                        const tree = inputHandler.generateArithmeticTree();
+                                        if (tree === null) return;
+                                        const answer = this.calculate(tree).toString();
+                                        const recent = history.concat({input: input, answer: answer})
+                                        this.setState({history: recent, input: "", placeholder: answer});
+                                    }}/>
+                                    <Button value="-" color="secondary" onClick={() => {this.add("-");}}/>
+                                </div>
+                            </div>
                         </div>
-                        <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="7" color="default" onClick={() => {this.add("7");}}/>
-                            <Button value="8" color="default" onClick={() => {this.add("8");}}/>
-                            <Button value="9" color="default" onClick={() => {this.add("9");}}/>
-                            <Button value="/" color="secondary" onClick={() => {this.add("/");}}/>
-                        </div>
-                        <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="4" color="default" onClick={() => {this.add("4");}}/>
-                            <Button value="5" color="default" onClick={() => {this.add("5");}}/>
-                            <Button value="6" color="default" onClick={() => {this.add("6");}}/>
-                            <Button value="x" color="secondary" onClick={() => {this.add("x");}}/>
-                        </div>
-                        <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="1" color="default" onClick={() => {this.add("1");}}/>
-                            <Button value="2" color="default" onClick={() => {this.add("2");}}/>
-                            <Button value="3" color="default" onClick={() => {this.add("3");}}/>
-                            <Button value="+" color="secondary" onClick={() => {this.add("+");}}/>
-                        </div>
-                        <div className="uk-grid uk-grid-small uk-child-width-1-4">
-                            <Button value="0" color="default" onClick={() => {this.add("0");}}/>
-                            <Button value="." color="default" onClick={() => {this.add(".");}}/>
-                            <Button value="=" color="primary" onClick={() => {
-                                const {inputHandler} = this.props;
-                                const tree = inputHandler.generateArithmeticTree();
-                                if (tree === null) return;
-                                const answer = this.calculate(tree).toString();
-                                const recent = history.concat({input: input, answer: answer})
-                                this.setState({history: recent, input: "", placeholder: answer});
-                            }}/>
-                            <Button value="-" color="secondary" onClick={() => {this.add("-");}}/>
+                    </div>
+                    <div className="uk-padding-remove uk-width-1-3">
+                        <div className="socials">
+                        
                         </div>
                     </div>
                 </div>
@@ -404,21 +435,31 @@ class Calculator extends React.Component {
 
 function History(props) {
     const {history, onClick} = props;
-    const list = history.map((element, index) => {
-        const {input, answer} = element;
+    const list = history.map((element, index, history) => {
+        const reverseIndex = history.length - 1 - index;
+        const {input, answer} = history[reverseIndex];
+        const key = reverseIndex;
+        let divider = <></>;
+        if (reverseIndex !== 0) {
+            divider = <hr className="uk-margin-remove"></hr>
+        }
         return (
-            <li key={index} className="history-item uk-text-right">
-                <div onClick={() => {onClick(index);}}>
-                    <p className="uk-text-large uk-margin-remove">{input}</p>
-                    <p className="uk-text-small uk-margin-remove">ANS={answer}</p>
-                </div>
-            </li>
+            <>
+                <li key={key} className="history-item uk-text-right uk-margin-remove uk-padding-small">
+                    <p className="uk-link uk-text-large uk-margin-remove" onClick={() => {onClick(reverseIndex, "input");}}>{input}</p>
+                    <p className="uk-text-small uk-margin-remove">ANS=<span className="uk-link" onClick={() => {onClick(reverseIndex, "answer");}}>{answer}</span></p>
+                </li>
+                {divider}
+            </>
         )
     });
     return (
-        <div className="uk-width-1-1">
-            <ul className="history uk-list uk-width-1-1 uk-margin-remove">{list}</ul>
-        </div>
+        <>
+            <h5 className="uk-text-right uk-text-large uk-text-white"><b>History</b></h5>
+            <div className="uk-card uk-card-default uk-card-body uk-border-rounded uk-padding-remove">
+                <ul className="uk-list uk-width-1-1 uk-margin-remove uk-height-medium uk-overflow-auto">{list}</ul>
+            </div>
+        </>
     );
 }
 
@@ -436,7 +477,7 @@ function Input(props) {
 function Button(props) {
     const {value, color, onClick} = props;
     let className = "uk-button uk-text-center uk-text-large uk-padding-remove uk-width-1-1";
-    className = className + " uk-button-" + color;
+    className = classNames(className, "uk-button-" + color);
     return (
         <div>
             <input className={className} type="button" value={value} onClick={onClick}/>

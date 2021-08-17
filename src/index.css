@@ -36,6 +36,10 @@ input {
     border: 1px solid #e5e5e5;
 }
 
+.uk-text-white {
+    color: white;
+}
+
 .uk-button-default {
     background-color: #e4e4e4;
 }
