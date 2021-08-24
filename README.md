@@ -1,6 +1,48 @@
-# Getting Started with Create React App
+# Calculator App
+
+A simple react app (without hooks), which simulates a calculator with memory. This application uses a state machine for advanced input handling and a binary tree for handling operations with precedence and associativity in mind.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+### State Machine Diagram
+
+This is an illustration of the state machine used to handle input along with its recovery transitions for handling errors along the way.
+
+![calculator state machine](calculator-state-machine.png)
+![calculator state machine recovery](calculator-state-machine-recovery.png)
+
+### Learning Outcomes
+
+- Understanding the "main concepts" of react and implementing them
+    - States/props
+    - Lifecycle
+        - getDerivedStateFromProps()
+        - componentDidMount()
+        - shouldComponentUpdate()
+        - render()
+        - getSnapshotBeforeUpdate()
+        - componentDidUpdate()
+        - componentWillUnmount()
+    - Handling events
+    - Components as functions vs classes
+    - Lists and keys
+    - Conditional rendering
+    - Lists and keys
+    - Refs
+    - Lifting state up using callback functions
+- Understanding the advantages and disadvantages of client-side rendering (CSR) vs server-side rendering (SSR)
+    - Slower load times vs Faster load times
+    - Fully loaded vs partially loaded
+    - Javascript required vs javascript not required
+    - Bad SEO vs good SEO
+- Get more practice with state machines
+- Explore UIKit and some of the features they offer
+    - Easy to use, but not very clean (similar to Bootstrap)
+- Learn more about CSS
+    - Animations/Keyframes
+    - Pseudo elements/classes
+        - :: Before/after
+        - : Active/focus/hover
 
 ## Available Scripts
 
