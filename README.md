@@ -8,7 +8,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Preview
 
-https://github.com/schinwald/calculato/blob/b32502c43860309a76cb7c469ed10582f63d6618/preview.webm?raw=true
+[preview.webm](https://github.com/schinwald/calculato/assets/5532419/5404d38e-5f81-45e8-849e-b77e75ef6614)
 
 ## State Machine Diagram
 
