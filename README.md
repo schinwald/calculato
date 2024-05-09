@@ -1,17 +1,23 @@
-# Calculator App
+# Calculato
+
+## Description
 
 A simple react app (without hooks), which simulates a calculator with memory. This application uses a state machine for advanced input handling and a binary tree for handling operations with precedence and associativity in mind.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-### State Machine Diagram
+## Preview
+
+https://github.com/schinwald/calculato/blob/b32502c43860309a76cb7c469ed10582f63d6618/preview.webm?raw=true
+
+## State Machine Diagram
 
 This is an illustration of the state machine used to handle input along with its recovery transitions for handling errors along the way.
 
 ![calculator state machine](calculator-state-machine.png)
 ![calculator state machine recovery](calculator-state-machine-recovery.png)
 
-### Learning Outcomes
+## Learning Outcomes
 
 - Understanding the "main concepts" of react and implementing them
     - States/props
